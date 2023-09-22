@@ -1,11 +1,12 @@
 import requests
+from bs4 import BeautifulSoup
  
 # Making a GET request
-r = requests.get('https://game8.co/games/Honkai-Star-Rail')
+r = requests.get('https://game8.co/games/Honkai-Star-Rail/archives/404256')
  
-# check status code for response received
-# success code - 200
-print(r)
- 
-# print content of request
-print(r.content)
+soup = BeautifulSoup(r.content, 'html.parser')
+
+s = soup.find('table', class_='a-table a-table a-table tablesorter')
+content = s.find_all('a')
+
+print(content)
