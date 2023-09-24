@@ -18,5 +18,5 @@ count = 0
 
 for line in a:
     if count % 4 == 0:
-        print(line.text)
+        print(line.text, line.attrs["href"])
     count += 1
