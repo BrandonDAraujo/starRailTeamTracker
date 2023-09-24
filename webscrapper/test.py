@@ -17,6 +17,9 @@ def getAllPlayableCharacterTableLinks(soup):
     a = tables[1].find_all('a')
     return a
 
+def getBaseBuildTableLinks():
+    return
+
 def saveCharacterImages(characterLinks):
     for link in characterLinks:
         img_data = requests.get(link.next.attrs["data-src"]).content
@@ -37,17 +40,26 @@ def writeNamesAndUrls(characterLinks):
             writer.writerow([link.text, link.attrs["href"]])
     return
 
+def writeGuideDataFromUrls(urls):
+    for url in urls:
+        soup = getWebPage(url)
+        print(soup.title)
+    return
+
 # main page that we get the character list from
 url = 'https://game8.co/games/Honkai-Star-Rail/archives/404256'
 soup = getWebPage(url)
 # targets the main table in the url that contains the playable character list
 tableLinks = getAllPlayableCharacterTableLinks(soup)
 characterLinks = []
+guideUrls = []
 count = 0
 for link in tableLinks:
     if count % 4 == 0:
         characterLinks.append(link)
+        guideUrls.append(link.attrs["href"])
     count += 1
-saveCharacterImages(characterLinks)
+# saveCharacterImages(characterLinks)
 writeCsvHeader()
 writeNamesAndUrls(characterLinks)
+writeGuideDataFromUrls(guideUrls)
