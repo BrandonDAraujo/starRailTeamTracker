@@ -17,25 +17,37 @@ def getAllPlayableCharacterTableLinks(soup):
     a = tables[1].find_all('a')
     return a
 
-def writeCharacterData(urls):
-    return null
+def saveCharacterImages(characterLinks):
+    for link in characterLinks:
+        img_data = requests.get(link.next.attrs["data-src"]).content
+        with open('webscrapper/images/'+link.text.strip(' ')+'.png', 'wb') as handler:
+            handler.write(img_data)
+    return 
  
+def writeCsvHeader():
+    with open('webscrapper/character.csv', 'w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['Name', 'URL'])
+    return
+
+def writeNamesAndUrls(characterLinks):
+    with open('webscrapper/character.csv', 'a', newline='') as file:
+        writer = csv.writer(file)
+        for link in characterLinks:
+            writer.writerow([link.text, link.attrs["href"]])
+    return
+
 # main page that we get the character list from
 url = 'https://game8.co/games/Honkai-Star-Rail/archives/404256'
 soup = getWebPage(url)
 # targets the main table in the url that contains the playable character list
 tableLinks = getAllPlayableCharacterTableLinks(soup)
+characterLinks = []
 count = 0
-urls = []
-with open('webscrapper/character.csv', 'w', newline='') as file:
-    writer = csv.writer(file)
-    for line in tableLinks :
-        if count % 4 == 0:
-            img_data = requests.get(line.next.attrs["data-src"]).content
-            with open('webscrapper/images/'+line.text.strip(' ')+'.png', 'wb') as handler:
-                handler.write(img_data)
-            writer.writerow([line.text, line.attrs["href"]])
-            urls.append(line.attrs["href"])
-        count += 1
-# soup = getWebPage(urls[1])
-# print(soup)
+for link in tableLinks:
+    if count % 4 == 0:
+        characterLinks.append(link)
+    count += 1
+saveCharacterImages(characterLinks)
+writeCsvHeader()
+writeNamesAndUrls(characterLinks)
