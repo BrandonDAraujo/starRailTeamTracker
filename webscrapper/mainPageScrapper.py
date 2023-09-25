@@ -17,8 +17,34 @@ def getAllPlayableCharacterTableLinks(soup):
     a = tables[1].find_all('a')
     return a
 
-def getBaseBuildTableLinks():
-    return
+def getGuideTable(url):
+    soup = getWebPage(url)
+    tab = soup.find('div', class_="a-tabContainer")
+    a = tab.find_all('a')
+    return a
+
+def getGuideMainStats(url):
+    soup = getWebPage(url)
+    tabContainer = soup.find('div', class_="a-tabContainer")
+    tr = tabContainer.find_all('tr')
+    mainStats = tr[4].find_all('b')
+    return mainStats
+
+def getSilverWolfTable(url):
+    soup = getWebPage(url)
+    tab = soup.find('table', class_="a-table a-table")
+    a = tab.find_all('a')
+    count = 0
+    # for line in a:
+    #     print(count,line.text)
+    #     count += 1
+    return a
+
+def getSilverWolfMainStats(url):
+    soup = getWebPage(url)
+    tab = soup.find('table', class_="a-table a-table")
+    silverWolfMainStats = tab.find_all('b')
+    return silverWolfMainStats
 
 def saveCharacterImages(characterLinks):
     for link in characterLinks:
@@ -27,24 +53,71 @@ def saveCharacterImages(characterLinks):
             handler.write(img_data)
     return 
  
-def writeCsvHeader():
-    with open('webscrapper/character.csv', 'w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['Name', 'URL'])
-    return
-
-def writeNamesAndUrls(characterLinks):
+def writeCsvData(characterLinks):
     with open('webscrapper/character.csv', 'a', newline='') as file:
         writer = csv.writer(file)
+        writer.writerow(['Name','LightCone','Head','Gloves','Body','Feet','Sphere','Rope','BodyMainStat','FeetMainStat','SphereMainStat','RopeMainStat'])
         for link in characterLinks:
-            writer.writerow([link.text, link.attrs["href"]])
+            name = link.text.strip(' ')
+            print('Writing',name,'data...')
+            lightCone = ''
+            head = ''
+            gloves = ''
+            body = ''
+            feet = ''
+            sphere = ''
+            rope = ''
+            bodyMainStat = ''
+            feetMainStat = ''
+            sphereMainStat = ''
+            ropeMainStat = ''
+            if name == 'Silver Wolf':
+                # TODO combine these two functions so they don't make to seprate calls to the same web page
+                silverWolfInfo = getSilverWolfTable(link.attrs["href"])
+                silverWolfMainStats = getSilverWolfMainStats(link.attrs["href"])
+                lightCone = silverWolfInfo[0].text.strip(' ')
+                head = silverWolfInfo[4].text.strip(' ')
+                gloves = silverWolfInfo[4].text.strip(' ')
+                body = silverWolfInfo[4].text.strip(' ')
+                feet = silverWolfInfo[4].text.strip(' ')
+                sphere = silverWolfInfo[5].text.strip(' ')
+                rope = silverWolfInfo[5].text.strip(' ')
+                bodyMainStat = silverWolfMainStats[3].nextSibling.strip(' ') 
+                feetMainStat = silverWolfMainStats[4].nextSibling.strip(' ')
+                sphereMainStat = silverWolfMainStats[5].nextSibling.strip(' ')
+                ropeMainStat = silverWolfMainStats[6].nextSibling.strip(' ')
+                writer.writerow([name,lightCone,head,gloves,body,feet,sphere,rope,bodyMainStat,feetMainStat,sphereMainStat,ropeMainStat]) 
+            else:
+                # TODO combine these two functions so they don't make to seprate calls to the same web page
+                guideInfo = getGuideTable(link.attrs["href"])
+                mainStats = getGuideMainStats(link.attrs["href"])
+                if len(guideInfo) == 8:
+                    lightCone = guideInfo[0].text
+                    head = guideInfo[1].text
+                    gloves = guideInfo[1].text
+                    body = guideInfo[1].text
+                    feet = guideInfo[1].text
+                    sphere = guideInfo[2].text
+                    rope = guideInfo[2].text
+                    bodyMainStat = mainStats[0].nextSibling.strip(':').strip(' ')
+                    feetMainStat = mainStats[1].nextSibling.strip(':').strip(' ')
+                    sphereMainStat = mainStats[2].nextSibling.strip(':').strip(' ')
+                    ropeMainStat = mainStats[3].nextSibling.strip(':').strip(' ')
+                elif len(guideInfo) == 9:
+                    lightCone = guideInfo[0].text
+                    head = guideInfo[1].text + "/" + guideInfo[2].text
+                    gloves = guideInfo[1].text + "/" +  guideInfo[2].text
+                    body = guideInfo[1].text + "/" +  guideInfo[2].text
+                    feet = guideInfo[1].text + "/" +  guideInfo[2].text
+                    sphere = guideInfo[3].text
+                    rope = guideInfo[3].text
+                    bodyMainStat = mainStats[0].nextSibling.strip(':').strip(' ')
+                    feetMainStat = mainStats[1].nextSibling.strip(':').strip(' ')
+                    sphereMainStat = mainStats[2].nextSibling.strip(':').strip(' ')
+                    ropeMainStat = mainStats[3].nextSibling.strip(':').strip(' ')
+                writer.writerow([name,lightCone,head,gloves,body,feet,sphere,rope,bodyMainStat,feetMainStat,sphereMainStat,ropeMainStat])
     return
 
-def writeGuideDataFromUrls(urls):
-    for url in urls:
-        soup = getWebPage(url)
-        print(soup.title)
-    return
 
 # main page that we get the character list from
 url = 'https://game8.co/games/Honkai-Star-Rail/archives/404256'
@@ -52,15 +125,11 @@ soup = getWebPage(url)
 # targets the main table in the url that contains the playable character list
 tableLinks = getAllPlayableCharacterTableLinks(soup)
 characterLinks = []
-guideUrls = []
 count = 0
 #store the characater links alone
 for link in tableLinks:
     if count % 4 == 0:
         characterLinks.append(link)
-        guideUrls.append(link.attrs["href"])
     count += 1
 # saveCharacterImages(characterLinks)
-writeCsvHeader()
-writeNamesAndUrls(characterLinks)
-writeGuideDataFromUrls(guideUrls)
+writeCsvData(characterLinks)
