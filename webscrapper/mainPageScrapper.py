@@ -54,7 +54,7 @@ def saveCharacterImages(characterLinks):
     return 
  
 def writeCsvData(characterLinks):
-    with open('webscrapper/character.csv', 'a', newline='') as file:
+    with open('webscrapper/character.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['Name','LightCone','Head','Gloves','Body','Feet','Sphere','Rope','BodyMainStat','FeetMainStat','SphereMainStat','RopeMainStat'])
         for link in characterLinks:
@@ -91,30 +91,25 @@ def writeCsvData(characterLinks):
                 # TODO combine these two functions so they don't make to seprate calls to the same web page
                 guideInfo = getGuideTable(link.attrs["href"])
                 mainStats = getGuideMainStats(link.attrs["href"])
+                lightCone = guideInfo[0].text
                 if len(guideInfo) == 8:
-                    lightCone = guideInfo[0].text
                     head = guideInfo[1].text
                     gloves = guideInfo[1].text
                     body = guideInfo[1].text
                     feet = guideInfo[1].text
                     sphere = guideInfo[2].text
                     rope = guideInfo[2].text
-                    bodyMainStat = mainStats[0].nextSibling.strip(':').strip(' ')
-                    feetMainStat = mainStats[1].nextSibling.strip(':').strip(' ')
-                    sphereMainStat = mainStats[2].nextSibling.strip(':').strip(' ')
-                    ropeMainStat = mainStats[3].nextSibling.strip(':').strip(' ')
                 elif len(guideInfo) == 9:
-                    lightCone = guideInfo[0].text
                     head = guideInfo[1].text + "/" + guideInfo[2].text
                     gloves = guideInfo[1].text + "/" +  guideInfo[2].text
                     body = guideInfo[1].text + "/" +  guideInfo[2].text
                     feet = guideInfo[1].text + "/" +  guideInfo[2].text
                     sphere = guideInfo[3].text
                     rope = guideInfo[3].text
-                    bodyMainStat = mainStats[0].nextSibling.strip(':').strip(' ')
-                    feetMainStat = mainStats[1].nextSibling.strip(':').strip(' ')
-                    sphereMainStat = mainStats[2].nextSibling.strip(':').strip(' ')
-                    ropeMainStat = mainStats[3].nextSibling.strip(':').strip(' ')
+                bodyMainStat = mainStats[0].nextSibling.strip(':').strip(' ')
+                feetMainStat = mainStats[1].nextSibling.strip(':').strip(' ')
+                sphereMainStat = mainStats[2].nextSibling.strip(':').strip(' ')
+                ropeMainStat = mainStats[3].nextSibling.strip(':').strip(' ')
                 writer.writerow([name,lightCone,head,gloves,body,feet,sphere,rope,bodyMainStat,feetMainStat,sphereMainStat,ropeMainStat])
     return
 
