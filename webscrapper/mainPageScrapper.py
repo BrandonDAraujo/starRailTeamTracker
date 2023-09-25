@@ -44,10 +44,11 @@ soup = getWebPage(url)
 tableLinks = getAllPlayableCharacterTableLinks(soup)
 characterLinks = []
 count = 0
+#store the characater links alone
 for link in tableLinks:
     if count % 4 == 0:
         characterLinks.append(link)
     count += 1
-saveCharacterImages(characterLinks)
+# saveCharacterImages(characterLinks)
 writeCsvHeader()
 writeNamesAndUrls(characterLinks)
